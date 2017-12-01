@@ -256,16 +256,4 @@ class Scheme extends Component<{ gradient: string }> {
 	}
 }
 
-/*
-Ideas:
-
-
-Color harmonies!
-http://www.tigercolor.com/color-lab/color-theory/color-harmonies.htm
-
-
-80 - 120 2 color
-
-*/
-
 export default Username
