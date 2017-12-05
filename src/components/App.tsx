@@ -36,7 +36,8 @@ export class Username extends Component<{}> {
 					flexDirection: "column",
 				}}
 			>
-				<Scheme
+				<Badge
+					letter={text.get()[0]}
 					gradient={`linear-gradient(${angle}deg, hsl(${
 						anchor
 					}, 100%, 50%), hsl(${sweep}, 100%, 50%))`}
@@ -237,7 +238,7 @@ function Group(props: { title: string; children: any }) {
 	)
 }
 
-class Scheme extends Component<{ gradient: string }> {
+export class Scheme extends Component<{ gradient: string }> {
 	view() {
 		return (
 			<div
@@ -256,4 +257,48 @@ class Scheme extends Component<{ gradient: string }> {
 	}
 }
 
+export class Badge extends Component<{ gradient: string; letter: string }> {
+	view() {
+		return (
+			<div
+				style={{
+					height: 100,
+					width: 100,
+					borderRadius: 100,
+					margin: 8,
+					backgroundImage: this.props.gradient,
+				}}
+			>
+				<svg width="100%" height="100%">
+					<circle
+						cx="50%"
+						cy="50%"
+						r="45%"
+						fill="#fff"
+						fillOpacity="1"
+						mask="url(#knockout-text)"
+					/>
+
+					<mask id="knockout-text">
+						<rect width="100%" height="100%" fill="#fff" x="0" y="0" />
+						<text
+							x="50%"
+							y="50%"
+							fill="#000"
+							textAnchor="middle"
+							fontSize="50"
+							alignmentBaseline="central"
+							fontFamily={`-apple-system, "Helvetica", "Arial", sans-serif`}
+							fontStyle="bold"
+						>
+							{(this.props.letter || "").toUpperCase()}
+						</text>
+					</mask>
+				</svg>
+			</div>
+		)
+	}
+}
+
 export default Username
+// export default Examples
