@@ -1,11 +1,15 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
-import { css } from "glamor"
+import * as glamor from "glamor"
 import App from "./components/App"
 
-css.global("a", {
-	color: "inherit",
-	textDecoration: "none",
+glamor.css.global("html, body", {
+	padding: 0,
+	maxWidth: "50em",
+	margin: "0 auto",
+	fontFamily: '-apple-system, "Helvetica", "Arial", sans-serif',
+	color: "#444",
+	tabSize: 4,
 })
 
 const root = document.createElement("div")
