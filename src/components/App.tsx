@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Value } from "reactive-magic"
 import Component from "reactive-magic/component"
-import * as md5 from "md5"
+import { css } from "glamor"
 
 // The Central Randomizer 1.3 (C) 1997 by Paul Houle (paul@honeylocust.com)
 // See:  http://www.honeylocust.com/javascript/randomizer.html
@@ -15,6 +15,8 @@ function generator(init: number) {
 }
 
 const random = generator(0)
+const randomN = (random: () => number, min: number, max: number) =>
+	min + Math.floor(random() * (max + 1 - min))
 
 function iter<T>(n: number, fn: (i: number) => T): Array<T> {
 	const result: Array<T> = []
@@ -51,8 +53,6 @@ function anglesWithSeparation(sep: number) {
 function hsl(angle: number) {
 	return `hsl(${angle}, 100%, 50%)`
 }
-
-const text = new Value("")
 
 class LinearSeparation extends Component<{ sep: number }> {
 	view() {
@@ -118,9 +118,10 @@ class RadialSeparation extends Component<{ sep: number }> {
 	}
 }
 
-export class App extends Component<{}> {
+class App extends Component<{}> {
 	view() {
 		const components: Array<React.ReactNode> = [
+			<Demo />,
 			<Group title="Linear gradient, 2 colors">
 				<Section title="Random">
 					{iter(18, i => {
@@ -172,53 +173,83 @@ export class App extends Component<{}> {
 			</Group>,
 			<InteractiveTwoExamples />,
 			<InteractiveThreeExamples />,
+			<Group title="User Badges">
+				<Section title="Radial">
+					{iter(100, i => {
+						const allColors = anglesWithSeparation(30)
+						const nColors = randomN(random, 3, 4)
+						const colors = sampleWithoutReplacement(nColors, allColors)
+						const gradient = colors.map(hsl).join(", ")
+						const letter = String.fromCharCode(randomN(random, 65, 65 + 25))
+						return (
+							<Badge gradient={`radial-gradient(${gradient})`} name={letter} />
+						)
+					})}
+				</Section>
+				<Section title="Linear">
+					{iter(100, i => {
+						const angle = random() * 360
+						const allColors = anglesWithSeparation(30)
+						const nColors = randomN(random, 2, 6)
+						const colors = sampleWithoutReplacement(nColors, allColors)
+						const gradient = colors.map(hsl).join(", ")
+						const letter = String.fromCharCode(randomN(random, 65, 65 + 25))
+						return (
+							<Badge
+								gradient={`linear-gradient(-${angle}deg, ${gradient})`}
+								name={letter}
+							/>
+						)
+					})}
+				</Section>
+			</Group>,
 		]
 		return components
 	}
 }
 
-export class Username extends Component<{}> {
-	private handleChange = e => {
-		text.set(e.target.value)
-	}
+const text = new Value("")
 
+class Demo extends Component<{}> {
 	view() {
-		const hash = md5(text.get())
+		const string = text.get()
 
-		const base = Math.pow(2, 40)
-		const a = parseInt(hash.slice(0, 10), 16) / base
-		const b = parseInt(hash.slice(10, 20), 16) / base
-		const c = parseInt(hash.slice(20, 30), 16) / base
+		const seed = Array.from(string)
+			.map((c, i) => c.charCodeAt(0) * Math.pow(2, 8 * i))
+			.reduce((x, y) => x + y, 0)
+		const rand = generator(seed)
 
-		const angle = a * 360
-		const anchor = b * 360
-		const sweep = anchor + 80 + c * 40
+		const allColors = anglesWithSeparation(30)
+		const linear = randomN(rand, 0, 1) === 0
+		let cssGradient: string
+		if (linear) {
+			const angle = rand() * 360
+			const nColors = randomN(rand, 2, 6)
+			const colors = sampleWithoutReplacement(nColors, allColors)
+			const gradient = colors.map(hsl).join(", ")
+			cssGradient = `linear-gradient(-${angle}deg, ${gradient})`
+		} else {
+			const nColors = randomN(random, 3, 4)
+			const colors = sampleWithoutReplacement(nColors, allColors)
+			const gradient = colors.map(hsl).join(", ")
+			cssGradient = `radial-gradient(${gradient})`
+		}
 
 		return (
 			<div
 				style={{
-					position: "absolute",
-					top: 0,
-					bottom: 0,
-					left: 0,
-					right: 0,
 					display: "flex",
 					alignItems: "center",
 					justifyContent: "center",
 					flexDirection: "column",
 				}}
 			>
-				<Badge
-					name={text.get()[0]}
-					gradient={`linear-gradient(${angle}deg, hsl(${
-						anchor
-					}, 100%, 50%), hsl(${sweep}, 100%, 50%))`}
-				/>
+				<Badge gradient={cssGradient} name={string} />
 				<input
 					placeholder="Type something..."
 					style={{ margin: 8 }}
-					value={text.get()}
-					onChange={this.handleChange}
+					value={string}
+					onChange={e => text.set(e.target.value)}
 				/>
 			</div>
 		)
@@ -227,7 +258,7 @@ export class Username extends Component<{}> {
 
 const spread = new Value(80)
 
-export class InteractiveTwoExamples extends Component<{}> {
+class InteractiveTwoExamples extends Component<{}> {
 	view() {
 		const allColors = anglesWithSeparation(30)
 		return (
@@ -266,7 +297,7 @@ export class InteractiveTwoExamples extends Component<{}> {
 }
 
 const split = new Value(60)
-export class InteractiveThreeExamples extends Component<{}> {
+class InteractiveThreeExamples extends Component<{}> {
 	view() {
 		const allColors = anglesWithSeparation(30)
 		return (
@@ -369,7 +400,14 @@ class Group extends Component<{ title: string }> {
 				</p>
 				{this.open.get() && (
 					<div
-						style={{ display: "inline-flex", flexWrap: "wrap", maxWidth: 700 }}
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							maxWidth: 1400,
+							marginLeft: 20,
+							marginTop: "-1em",
+							// marginBottom: "-1em",
+						}}
 					>
 						{this.props.children}
 					</div>
@@ -383,11 +421,11 @@ class Section extends Component<{ title: string }> {
 	view() {
 		return (
 			<div>
-				<p style={{ textAlign: "center" }}>
+				<p style={{ textAlign: "left" }}>
 					<strong>{this.props.title}</strong>
 				</p>
 				<div
-					style={{ display: "inline-flex", flexWrap: "wrap", maxWidth: 700 }}
+					style={{ display: "inline-flex", flexWrap: "wrap", maxWidth: "100%" }}
 				>
 					{this.props.children}
 				</div>
@@ -396,7 +434,7 @@ class Section extends Component<{ title: string }> {
 	}
 }
 
-export class Circle extends Component<{ gradient: string }> {
+class Circle extends Component<{ gradient: string }> {
 	view() {
 		return (
 			<div
@@ -412,8 +450,9 @@ export class Circle extends Component<{ gradient: string }> {
 	}
 }
 
-export class Badge extends Component<{ gradient: string; name: string }> {
+class Badge extends Component<{ gradient: string; name: string }> {
 	view() {
+		const letter = (this.props.name[0] || "").toUpperCase()
 		return (
 			<div
 				style={{
@@ -431,10 +470,10 @@ export class Badge extends Component<{ gradient: string; name: string }> {
 						r="45%"
 						fill="#fff"
 						fillOpacity="1"
-						mask="url(#knockout-text)"
+						mask={`url(#knockout-text${letter})`}
 					/>
 
-					<mask id="knockout-text">
+					<mask id={`knockout-text${letter}`}>
 						<rect width="100%" height="100%" fill="#fff" x="0" y="0" />
 						<text
 							x="50%"
@@ -446,7 +485,7 @@ export class Badge extends Component<{ gradient: string; name: string }> {
 							fontFamily={`-apple-system, "Helvetica", "Arial", sans-serif`}
 							fontStyle="bold"
 						>
-							{(this.props.name[0] || "").toUpperCase()}
+							{letter}
 						</text>
 					</mask>
 				</svg>
@@ -456,4 +495,3 @@ export class Badge extends Component<{ gradient: string; name: string }> {
 }
 
 export default App
-// export default Examples

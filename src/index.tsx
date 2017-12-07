@@ -4,8 +4,8 @@ import * as glamor from "glamor"
 import App from "./components/App"
 
 glamor.css.global("html, body", {
-	padding: 0,
-	maxWidth: "50em",
+	padding: "2em",
+	maxWidth: "200em",
 	margin: "0 auto",
 	fontFamily: '-apple-system, "Helvetica", "Arial", sans-serif',
 	color: "#444",
