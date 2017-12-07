@@ -71,6 +71,39 @@ class LinearSeparation extends Component<{ sep: number }> {
 	}
 }
 
+class LinearRandom extends Component<{ samples: number; colors: number }> {
+	view() {
+		return (
+			<Section title={`${this.props.colors} colors`}>
+				{iter(this.props.samples, i => {
+					const angle = random() * 360
+					const allColors = anglesWithSeparation(30)
+					const colors = sampleWithoutReplacement(this.props.colors, allColors)
+					const gradient = colors.map(hsl).join(", ")
+					return (
+						<Circle gradient={`linear-gradient(-${angle}deg, ${gradient})`} />
+					)
+				})}
+			</Section>
+		)
+	}
+}
+
+class RadialRandom extends Component<{ samples: number; colors: number }> {
+	view() {
+		return (
+			<Section title={`${this.props.colors} colors`}>
+				{iter(this.props.samples, i => {
+					const allColors = anglesWithSeparation(30)
+					const colors = sampleWithoutReplacement(this.props.colors, allColors)
+					const gradient = colors.map(hsl).join(", ")
+					return <Circle gradient={`radial-gradient(${gradient})`} />
+				})}
+			</Section>
+		)
+	}
+}
+
 class RadialSeparation extends Component<{ sep: number }> {
 	view() {
 		return (
@@ -123,105 +156,19 @@ export class App extends Component<{}> {
 				<RadialSeparation sep={150} />
 				<RadialSeparation sep={180} />
 			</Group>,
-			<Group title="More than two colors">
-				{iter(100, i => {
-					// Generate an angle
-					const angle = random() * 360
-					// Up to 7 different colors
-					const nColors = Math.ceil(1 + random() * 6)
-					const allColors = [
-						0,
-						30,
-						60,
-						80,
-						120,
-						150,
-						180,
-						210,
-						240,
-						270,
-						300,
-						330,
-					]
-					const colors = sampleWithoutReplacement(nColors, allColors)
-					const gradient = colors
-						.map(angle => {
-							return `hsl(${angle}, 100%, 50%)`
-						})
-						.join(", ")
-					return (
-						<Circle gradient={`linear-gradient(-${angle}deg, ${gradient})`} />
-					)
-				})}
-				<Circle gradient="linear-gradient(-90deg, red, orange, black)" />
-				<Circle gradient="linear-gradient(-37deg, red, black, orange)" />
-				<Circle gradient="linear-gradient(-37deg, red, orange, green)" />
-				<Circle gradient="linear-gradient(-37deg, red, blue, orange)" />
-				<Circle gradient="linear-gradient(-37deg, red, blue, orange, green)" />
-				<Circle gradient="linear-gradient(-37deg, red, green, orange, blue, yellow, purple)" />
-				<Circle gradient="radial-gradient(red, orange, black)" />
-				<Circle gradient="radial-gradient(red, black, orange)" />
-				<Circle gradient="radial-gradient(red, blue, orange)" />
-				<Circle gradient="radial-gradient(red, yellow, blue)" />
-				<Circle gradient="radial-gradient(red, blue, orange, green)" />
-				<Circle gradient="radial-gradient(red, green, orange, blue, yellow, purple)" />
+			<Group title="Linear gradient, > 2 colors">
+				<LinearRandom samples={30} colors={3} />
+				<LinearRandom samples={30} colors={4} />
+				<LinearRandom samples={30} colors={5} />
+				<LinearRandom samples={30} colors={6} />
+				<LinearRandom samples={30} colors={7} />
 			</Group>,
-			<Group title="Complementary colors (180°)">
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(0, 100%, 50%), hsl(180, 100%, 50%))`}
-				/>
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(10, 100%, 50%), hsl(190, 100%, 50%))`}
-				/>
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(80, 100%, 50%), hsl(260, 100%, 50%))`}
-				/>
-			</Group>,
-			<Group title="Analogous colors">
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(30, 100%, 50%))`}
-				/>
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(150, 100%, 50%), hsl(210, 100%, 50%), hsl(180, 100%, 50%))`}
-				/>
-			</Group>,
-			<Group title="Triad colors">
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(0, 100%, 50%), hsl(120, 100%, 50%), hsl(240, 100%, 50%))`}
-				/>
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(60, 100%, 50%), hsl(180, 100%, 50%), hsl(300, 100%, 50%))`}
-				/>
-			</Group>,
-			<Group title="Split complementary colors">
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(0, 100%, 50%), hsl(150, 100%, 50%), hsl(210, 100%, 50%))`}
-				/>
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(150, 100%, 50%), hsl(0, 100%, 50%), hsl(210, 100%, 50%))`}
-				/>
-			</Group>,
-			<Group title="60 degrees colors">
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(0, 100%, 50%), hsl(60, 100%, 50%))`}
-				/>
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(150, 100%, 50%), hsl(210, 100%, 50%))`}
-				/>
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(180, 100%, 50%), hsl(240, 100%, 50%))`}
-				/>
-			</Group>,
-			<Group title="150 degrees colors">
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(0, 100%, 50%), hsl(150, 100%, 50%))`}
-				/>
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(150, 100%, 50%), hsl(300, 100%, 50%))`}
-				/>
-				<Circle
-					gradient={`linear-gradient(-37deg, hsl(180, 100%, 50%), hsl(330, 100%, 50%))`}
-				/>
+			<Group title="Radial gradient, > 2 colors">
+				<RadialRandom samples={30} colors={3} />
+				<RadialRandom samples={30} colors={4} />
+				<RadialRandom samples={30} colors={5} />
+				<RadialRandom samples={30} colors={6} />
+				<RadialRandom samples={30} colors={7} />
 			</Group>,
 			<InteractiveTwoExamples />,
 			<InteractiveThreeExamples />,
@@ -279,81 +226,91 @@ export class Username extends Component<{}> {
 }
 
 const spread = new Value(80)
-const starts = Array(12)
-	.fill(0)
-	.map((_, i) => i * 30)
 
 export class InteractiveTwoExamples extends Component<{}> {
-	private handleChange = e => {
-		spread.set(e.target.value / 100 * 360)
-	}
-
 	view() {
+		const allColors = anglesWithSeparation(30)
 		return (
-			<div
-				style={{
-					display: "inline-flex",
-					flexWrap: "wrap",
-				}}
-			>
-				<Group title="2 color spread">
-					<div>
-						<div style={{ width: 60 }}>{Math.round(spread.get())}</div>
-						<input
-							value={spread.get() / 360 * 100}
-							type="range"
-							onChange={this.handleChange}
-						/>
-					</div>
-					{starts.map(angle => (
+			<Group title="Interactive 2 colors">
+				<div>
+					<div style={{ width: 60 }}>{Math.round(spread.get())}</div>
+					<input
+						type="range"
+						value={spread.get() / 360 * 100}
+						onChange={(e: any) => spread.set(e.target.value / 100 * 360)}
+					/>
+				</div>
+				<Section title="Linear">
+					{allColors.map(angle => (
 						<Circle
 							key={angle}
-							gradient={`linear-gradient(-37deg, hsl(${
-								angle
-							}, 100%, 50%), hsl(${angle + spread.get()}, 100%, 50%))`}
+							gradient={`linear-gradient(-37deg, ${hsl(angle)},${hsl(
+								angle + spread.get()
+							)})`}
 						/>
 					))}
-				</Group>
-			</div>
+				</Section>
+				<Section title="Radial">
+					{allColors.map(angle => (
+						<Circle
+							key={angle}
+							gradient={`radial-gradient(${hsl(angle)},${hsl(
+								angle + spread.get()
+							)})`}
+						/>
+					))}
+				</Section>
+			</Group>
 		)
 	}
 }
 
 const split = new Value(60)
-
 export class InteractiveThreeExamples extends Component<{}> {
-	private handleChange = e => {
-		split.set(e.target.value / 100 * 360)
-	}
-
 	view() {
+		const allColors = anglesWithSeparation(30)
 		return (
-			<div
-				style={{
-					display: "inline-flex",
-					flexWrap: "wrap",
-				}}
-			>
-				<Group title="Split complementary spread">
-					<div>
-						<div style={{ width: 60 }}>{Math.round(split.get())}</div>
-						<input
-							value={split.get() / 360 * 100}
-							type="range"
-							onChange={this.handleChange}
-						/>
-					</div>
-					{starts.map(angle => (
-						<Circle
-							key={angle}
-							gradient={`linear-gradient(-37deg, hsl(${angle +
-								180 +
-								split.get() / 2}, 100%, 50%),
-								hsl(${angle}, 100%, 50%), hsl(${angle + 180 - split.get() / 2}, 100%, 50%))`}
-						/>
-					))}
-				</Group>
-			</div>
+			<Group title="Interactive 3 color split complementary">
+				<div>
+					<div style={{ width: 60 }}>{Math.round(split.get())}</div>
+					<input
+						value={split.get() / 360 * 100}
+						type="range"
+						onChange={(e: any) => split.set(e.target.value / 100 * 360)}
+					/>
+				</div>
+				<Section title="Linear">
+					{allColors.map(angle => {
+						const gradient = [
+							angle + 180 + split.get() / 2,
+							angle,
+							angle + 180 - split.get() / 2,
+						]
+							.map(hsl)
+							.join(", ")
+						return (
+							<Circle
+								key={angle}
+								gradient={`linear-gradient(-37deg, ${gradient})`}
+							/>
+						)
+					})}
+				</Section>
+				<Section title="Radial">
+					{allColors.map(angle => {
+						const gradient = [
+							angle + 180 + split.get() / 2,
+							angle,
+							angle + 180 - split.get() / 2,
+						]
+							.map(hsl)
+							.join(", ")
+						return (
+							<Circle key={angle} gradient={`radial-gradient(${gradient})`} />
+						)
+					})}
+				</Section>
+			</Group>
 		)
 	}
 }
@@ -364,14 +321,40 @@ class Group extends Component<{ title: string }> {
 	private renderButton() {
 		if (this.open.get()) {
 			return (
-				<button style={{ marginRight: 5 }} onClick={() => this.open.set(false)}>
-					close
+				<button
+					style={{
+						border: 0,
+						outline: "none",
+						margin: 0,
+						padding: 2,
+						borderRadius: 99,
+						marginRight: 5,
+						transform: "rotate(90deg)",
+						transition: "transform 200ms ease-in-out",
+						cursor: "pointer",
+					}}
+					onClick={() => this.open.set(false)}
+				>
+					▶
 				</button>
 			)
 		} else {
 			return (
-				<button style={{ marginRight: 5 }} onClick={() => this.open.set(true)}>
-					open
+				<button
+					style={{
+						border: 0,
+						outline: "none",
+						margin: 0,
+						padding: 2,
+						borderRadius: 99,
+						marginRight: 5,
+						transform: "rotate(0deg)",
+						transition: "transform 200ms ease-in-out",
+						cursor: "pointer",
+					}}
+					onClick={() => this.open.set(true)}
+				>
+					▶
 				</button>
 			)
 		}
