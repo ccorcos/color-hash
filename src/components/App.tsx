@@ -173,7 +173,7 @@ class App extends Component<{}> {
 			</Group>,
 			<InteractiveTwoExamples />,
 			<InteractiveThreeExamples />,
-			<Group title="User Badges">
+			<Group title="User Badge Ideas">
 				<Section title="Radial">
 					{iter(100, i => {
 						const allColors = anglesWithSeparation(30)
@@ -203,8 +203,50 @@ class App extends Component<{}> {
 					})}
 				</Section>
 			</Group>,
+			<Group title="User Badge Examples">
+				<Section title="Random Samples">
+					{iter(500, i => {
+						const letter = [
+							String.fromCharCode(randomN(random, 65, 65 + 25)),
+							String.fromCharCode(randomN(random, 65, 65 + 25)),
+							String.fromCharCode(randomN(random, 65, 65 + 25)),
+							String.fromCharCode(randomN(random, 65, 65 + 25)),
+							String.fromCharCode(randomN(random, 65, 65 + 25)),
+							String.fromCharCode(randomN(random, 65, 65 + 25)),
+							String.fromCharCode(randomN(random, 65, 65 + 25)),
+						].join("")
+						return <UserBadge text={letter} />
+					})}
+				</Section>
+			</Group>,
 		]
 		return components
+	}
+}
+
+class UserBadge extends Component<{ text: string }> {
+	view() {
+		const string = this.props.text
+
+		const seed = Array.from(string)
+			.map((c, i) => c.charCodeAt(0) * Math.pow(2, 8 * i))
+			.reduce((x, y) => x + y, 0)
+		const rand = generator(seed)
+
+		const allColors = anglesWithSeparation(30)
+		// const linear = randomN(rand, 0, 1) === 0
+		let cssGradient: string
+		const angle = randomN(rand, 1, 360)
+		const baseColor = randomN(rand, 1, 360)
+		const sweep = randomN(rand, 30, 40)
+		const gradient = [baseColor, baseColor + sweep].map(hsl).join(", ")
+		// if (linear) {
+		cssGradient = `linear-gradient(-${angle}deg, ${gradient})`
+		// } else {
+		// 	cssGradient = `radial-gradient(${gradient})`
+		// }
+
+		return <Badge gradient={cssGradient} name={string} />
 	}
 }
 
@@ -213,28 +255,6 @@ const text = new Value("")
 class Demo extends Component<{}> {
 	view() {
 		const string = text.get()
-
-		const seed = Array.from(string)
-			.map((c, i) => c.charCodeAt(0) * Math.pow(2, 8 * i))
-			.reduce((x, y) => x + y, 0)
-		const rand = generator(seed)
-
-		const allColors = anglesWithSeparation(30)
-		const linear = randomN(rand, 0, 1) === 0
-		let cssGradient: string
-		if (linear) {
-			const angle = rand() * 360
-			const nColors = randomN(rand, 2, 6)
-			const colors = sampleWithoutReplacement(nColors, allColors)
-			const gradient = colors.map(hsl).join(", ")
-			cssGradient = `linear-gradient(-${angle}deg, ${gradient})`
-		} else {
-			const nColors = randomN(random, 3, 4)
-			const colors = sampleWithoutReplacement(nColors, allColors)
-			const gradient = colors.map(hsl).join(", ")
-			cssGradient = `radial-gradient(${gradient})`
-		}
-
 		return (
 			<div
 				style={{
@@ -244,7 +264,7 @@ class Demo extends Component<{}> {
 					flexDirection: "column",
 				}}
 			>
-				<Badge gradient={cssGradient} name={string} />
+				<UserBadge text={string} />
 				<input
 					placeholder="Type something..."
 					style={{ margin: 8 }}
